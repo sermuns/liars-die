@@ -536,26 +536,20 @@ fn main() {
        									}
        								}
 							
-							'confirmation: loop {
-								match next_move {
-									Move::AtLeast(ndg) => {
-										println!(": At least {} {}s", ndg.cnt, ndg.val);
-									}
-									Move::No() => {
-										println!(": No");
-									}
-									Move::Exact() => {
-										println!(": Exact");
-									}
+							match next_move {
+								Move::AtLeast(ndg) => {
+									println!(": At least {} {}s", ndg.cnt, ndg.val);
 								}
-								match read_agreement("correct?") {
-									Agreement::Yes() => {
-										break 'outer;
-									}
-									Agreement::No() => {
-										break 'confirmation;
-									}
+								Move::No() => {
+									println!(": No");
 								}
+								Move::Exact() => {
+									println!(": Exact");
+								}
+							}
+							match read_agreement("correct?") {
+								Agreement::Yes() => break 'outer,
+								Agreement::No() => (),
 							}
 						}
 					} else {
