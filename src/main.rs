@@ -95,8 +95,8 @@ fn read_input_number() -> usize {
 		match io::stdin().read_line(&mut input) {
 			Ok(..) => {
 				if input.chars().count() == 3 {
-					let c = input.chars().nth(0).unwrap();
-					if c >= '2' && c <= '6' {
+					let c = input.chars().next().unwrap();
+					if ('2'..='6').contains(&c) {
 						return  c.to_digit(10).unwrap() as usize;
 					}
 				}
@@ -112,7 +112,7 @@ fn calculate_result(players: &Vec<PlayerInfo>, val: u8) -> u8 {
 	for p in 0..players.len() {
 		for d in 0..6 {
 			if players[p].dies[d as usize].val == val {
-				r = r + players[p].dies[d as usize].cnt;
+				r += players[p].dies[d as usize].cnt;
 			}
 		}
 	}
@@ -126,7 +126,7 @@ fn get_last_player(players: &Vec<PlayerInfo>, current_player: usize) -> usize {
 		if r == 0 {
 			r = players.len();
 		}
-		r = r-1;
+		r -= 1;
 		if players[r].dies_left > 0 {
 			found = true;
 		}
@@ -141,7 +141,7 @@ fn read_agreement(message: &str) -> Agreement {
 		match io::stdin().read_line(&mut input) {
 			Ok(..) => {
 				if input.chars().count() >1 {
-					let c = input.chars().nth(0).unwrap();
+					let c = input.chars().next().unwrap();
 					if c == 'y' || c == 'Y' {
 						return Agreement::Yes();
 					}
@@ -156,9 +156,9 @@ fn read_agreement(message: &str) -> Agreement {
 }
 
 fn player_lost(players: &mut Vec<PlayerInfo>, looser: usize, players_left: &mut usize) -> Agreement {
-	players[looser].dies_left = players[looser].dies_left-1;
+	players[looser].dies_left -= 1;
 	if players[looser].dies_left == 0 {
-		*players_left = *players_left-1;
+		*players_left -= 1;
 	}
 	if players[looser].is_human {
 		println!("You lost.");
@@ -188,7 +188,7 @@ fn print_title() {
 	println!("|       ||       ||       ||       ||       ||       ||       ||       |");
 	println!("└-------┘└-------┘└-------┘└-------┘└-------┘└-------┘└-------┘└-------┘");
 	println!("(c) Jens Ogniewski 2026");
-	println!("");
+	println!();
 }
 
 fn print_win() {
@@ -288,11 +288,11 @@ fn calc_move(player: PlayerInfo, dies_left: u8, players_left: usize, current_gue
 			rg.cnt = 1;
 			if endgame {
 				if player.dies_left>2 {
-					rg.cnt = rg.cnt+rng.gen_range(0..=1);
+					rg.cnt += rng.gen_range(0..=1);
 				}
 			} else {
 				if full_dies_left>1 {
-					rg.cnt = rg.cnt+rng.gen_range(1..full_dies_left);
+					rg.cnt += rng.gen_range(1..full_dies_left);
 				}
 			}
 		} else {
@@ -302,12 +302,12 @@ fn calc_move(player: PlayerInfo, dies_left: u8, players_left: usize, current_gue
 					rg=player.dies[d];
 				}
 			}
-			rg.cnt = rg.cnt+full_dies_left;
+			rg.cnt += full_dies_left;
 			if rg.cnt>1 {
-				rg.cnt = rg.cnt-1;
+				rg.cnt -= 1;
 			}
 			if mod_dies_left>3 {
-				rg.cnt = rg.cnt+rng.gen_range(0..=1);
+				rg.cnt += rng.gen_range(0..=1);
 			}
 		}
 		return Move::AtLeast(rg);
@@ -320,11 +320,11 @@ fn calc_move(player: PlayerInfo, dies_left: u8, players_left: usize, current_gue
 			let fdl = (dies_left - mdl) / 6;
 			max_bluff = fdl;
 			if mdl>3 {
-				max_bluff = max_bluff+1;
+				max_bluff += 1;
 			}
 		}
 		if player.dies_left>3 {
-			max_bluff = max_bluff + 1;
+			max_bluff += 1;
 		}
 		if current_guess.cnt < max_bluff {
 			return Move::AtLeast(DieGuess {val: current_guess.val, cnt: current_guess.cnt+1});
@@ -338,7 +338,7 @@ fn calc_move(player: PlayerInfo, dies_left: u8, players_left: usize, current_gue
 	//playing the odds
 	let mut min_guess = full_dies_left;
 	if mod_dies_left>3 {
-		min_guess = min_guess+1;
+		min_guess += 1;
 	}
 	let start_pos = rng.gen_range(0..6);
     
@@ -389,7 +389,7 @@ fn calc_move(player: PlayerInfo, dies_left: u8, players_left: usize, current_gue
     Move::No()
 }
 
-static NPCNAMES: &'static [&'static str] = &["Alice", "Bob", "Eve", "John", "Jane", "Spock"];
+static NPCNAMES: &[&str] = &["Alice", "Bob", "Eve", "John", "Jane", "Spock"];
 
 fn main() {
 	let mut game_on = true;
@@ -449,7 +449,7 @@ fn main() {
 				players[p].dies[5].cnt = 0;
 				for _i in 0..players[p].dies_left {
 					let die_val =  rng.gen_range(0..6);
-					players[p].dies[die_val].cnt = players[p].dies[die_val].cnt + 1;
+					players[p].dies[die_val].cnt += 1;
 				}
 			}
 
@@ -469,7 +469,7 @@ fn main() {
 									println!("(G)uess, (E)xact, (N)o?");
 									match io::stdin().read_line(&mut input) {
 										Ok(..) => {
-											let c = input.chars().nth(0).unwrap();
+											let c = input.chars().next().unwrap();
 											if c == 'g' || c == 'G' {
 												break 'guess;
 											}
@@ -487,57 +487,54 @@ fn main() {
 								}
 							}
 							
-							match next_move {
-								Move::AtLeast(ref mut ndg) => {
-									'val: loop {
-										println!("Which value are you guessing? (1..6) ");
-										let mut input = String::new();
-										match io::stdin().read_line(&mut input) {
-											Ok(..) => {
-												if input.chars().count() == 3 {
-													let c = input.chars().nth(0).unwrap();
-													if c >= '1' && c <= '6' {
-														ndg.val = c.to_digit(10).unwrap() as u8;
-														break 'val;
-													}
-												}
-											}
-											Err(error) => println!("error: {error}"),
-										}
-									}
-									'cnt: loop {
-										let mut min_guess = dg.cnt;
-										if ndg.val <= dg.val {
-											min_guess = min_guess + 1;
-										}
-										if min_guess == 0 {
-											min_guess = 1;
-										}
-										println!("How many times (>={}) ?", min_guess);
-										let mut input = String::new();
-										match io::stdin().read_line(&mut input) {
-											Ok(..) => {
-												let mut guess_cnt = 0;
-												let l = input.chars().count();
-												if l > 2 {
-													for cp in 0..l-2 {
-														let c = input.chars().nth(cp).unwrap();
-														if c >= '0' && c <= '9' {
-															guess_cnt = guess_cnt*10 + c.to_digit(10).unwrap() as u8;
-														}
-													}
-												}
-												if guess_cnt >= min_guess {
-													ndg.cnt = guess_cnt;
-													break 'cnt;
-												}
-											}
-											Err(error) => println!("error: {error}"),
-										}
-									}
-								}
-								_ => { }
-							}
+							if let Move::AtLeast(ref mut ndg) = next_move {
+       									'val: loop {
+       										println!("Which value are you guessing? (1..6) ");
+       										let mut input = String::new();
+       										match io::stdin().read_line(&mut input) {
+       											Ok(..) => {
+       												if input.chars().count() == 3 {
+       													let c = input.chars().next().unwrap();
+       													if ('1'..='6').contains(&c) {
+       														ndg.val = c.to_digit(10).unwrap() as u8;
+       														break 'val;
+       													}
+       												}
+       											}
+       											Err(error) => println!("error: {error}"),
+       										}
+       									}
+       									'cnt: loop {
+       										let mut min_guess = dg.cnt;
+       										if ndg.val <= dg.val {
+       											min_guess += 1;
+       										}
+       										if min_guess == 0 {
+       											min_guess = 1;
+       										}
+       										println!("How many times (>={}) ?", min_guess);
+       										let mut input = String::new();
+       										match io::stdin().read_line(&mut input) {
+       											Ok(..) => {
+       												let mut guess_cnt = 0;
+       												let l = input.chars().count();
+       												if l > 2 {
+       													for cp in 0..l-2 {
+       														let c = input.chars().nth(cp).unwrap();
+       														if c.is_ascii_digit() {
+       															guess_cnt = guess_cnt*10 + c.to_digit(10).unwrap() as u8;
+       														}
+       													}
+       												}
+       												if guess_cnt >= min_guess {
+       													ndg.cnt = guess_cnt;
+       													break 'cnt;
+       												}
+       											}
+       											Err(error) => println!("error: {error}"),
+       										}
+       									}
+       								}
 							
 							'confirmation: loop {
 								match next_move {
@@ -587,23 +584,17 @@ fn main() {
 							if guess_cnt<dg.cnt {
 								let looser = get_last_player(&players, current_player);
 								let game_continues = player_lost(&mut players, looser, &mut players_left);
-								match game_continues {
-									Agreement::No() => {
-										the_heat_is_on = false;
-									}
-									_ => { }
-								}
+								if let Agreement::No() = game_continues {
+        										the_heat_is_on = false;
+        									}
 								current_player = looser;
 							} else {
 								let game_continues = player_lost(&mut players, current_player, &mut players_left);
-								match game_continues {
-									Agreement::No() => {
-										the_heat_is_on = false;
-									}
-									_ => { }
-								}
+								if let Agreement::No() = game_continues {
+        										the_heat_is_on = false;
+        									}
 							}
-							dies_left = dies_left-1;
+							dies_left -= 1;
 							turn_turn_turn = false;
 						}
 						Move::Exact() => {
@@ -612,23 +603,17 @@ fn main() {
 							if guess_cnt==dg.cnt {
 								let looser = get_last_player(&players, current_player);
 								let game_continues = player_lost(&mut players, looser, &mut players_left);
-								match game_continues {
-									Agreement::No() => {
-										the_heat_is_on = false;
-									}
-									_ => { }
-								}
+								if let Agreement::No() = game_continues {
+        										the_heat_is_on = false;
+        									}
 								current_player = looser;
 							} else {
 								let game_continues = player_lost(&mut players, current_player, &mut players_left);
-								match game_continues {
-									Agreement::No() => {
-										the_heat_is_on = false;
-									}
-									_ => { }
-								}
+								if let Agreement::No() = game_continues {
+        										the_heat_is_on = false;
+        									}
 							}
-							dies_left = dies_left-1;
+							dies_left -= 1;
 							turn_turn_turn = false;
 						}
 					}
@@ -650,11 +635,8 @@ fn main() {
 				}
 			}
 		}
-		match read_agreement("Another game?") {
-			Agreement::No() => {
-				game_on = false;
-			}
-			_ => {}
-		}
+		if let Agreement::No() = read_agreement("Another game?") {
+  				game_on = false;
+  			}
 	}
 }
