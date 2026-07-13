@@ -109,10 +109,10 @@ fn read_input_number() -> usize {
 
 fn calculate_result(players: &[PlayerInfo], val: u8) -> u8 {
 	let mut r = 0;
-	for p in 0..players.len() {
+	for player in players {
 		for d in 0..6 {
-			if players[p].dies[d as usize].val == val {
-				r += players[p].dies[d as usize].cnt;
+			if player.dies[d as usize].val == val {
+				r += player.dies[d as usize].cnt;
 			}
 		}
 	}
@@ -440,16 +440,16 @@ fn main() {
 		let mut current_player = 0;
 		while the_heat_is_on {
 			let mut dg = DieGuess::default();
-			for p in 0..player_count {
-				players[p].dies[0].cnt = 0;
-				players[p].dies[1].cnt = 0;
-				players[p].dies[2].cnt = 0;
-				players[p].dies[3].cnt = 0;
-				players[p].dies[4].cnt = 0;
-				players[p].dies[5].cnt = 0;
-				for _i in 0..players[p].dies_left {
+			for player in &mut players {
+				player.dies[0].cnt = 0;
+				player.dies[1].cnt = 0;
+				player.dies[2].cnt = 0;
+				player.dies[3].cnt = 0;
+				player.dies[4].cnt = 0;
+				player.dies[5].cnt = 0;
+				for _ in 0..player.dies_left {
 					let die_val =  rng.gen_range(0..6);
-					players[p].dies[die_val].cnt += 1;
+					player.dies[die_val].cnt += 1;
 				}
 			}
 
