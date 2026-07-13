@@ -3,7 +3,7 @@ use rand::Rng;
 use std::io;
 use std::{thread, time};
 
-#[derive(Clone, Copy)]
+#[derive(Default, Clone, Copy, PartialEq)]
 struct DieGuess {
 	val: u8,
 	cnt: u8
@@ -18,32 +18,7 @@ struct DieGuess {
 	}
  }
 
-impl PartialEq for DieGuess {
-	
-	fn eq(&self, other: &DieGuess) -> bool {
-		self.val == other.val && self.cnt == other.cnt
-	}
-	
-	//would be nice to derive these automatically but don't know how
-	fn ne(&self, other: &DieGuess) -> bool {
-		!(self.val == other.val && self.cnt == other.cnt)
-	}
-}
-
 impl PartialOrd for DieGuess {
-	
-	fn gt(&self, other: &DieGuess) -> bool {
-		   (self.cnt > other.cnt)
-		|| (  (self.cnt == other.cnt)
-		    &&(self.val > other.val))
-	}
-	
-	fn lt(&self, other: &DieGuess) -> bool {
-		   (self.cnt < other.cnt)
-		|| (  (self.cnt == other.cnt)
-		    &&(self.val < other.val))
-	}
-	
 	fn partial_cmp(&self, other: &DieGuess) -> Option<std::cmp::Ordering> {
 		if self < other {
 			return Some(Ordering::Less);
